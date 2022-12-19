@@ -24,15 +24,12 @@ void *get_in_addr(struct sockaddr *sa)
 
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
-int sendmessage(char* ipstr, char* mylisteningport, int id){
-    char *text = (char*) malloc((MSGBUFFER)*sizeof(char));
-    printf("Enter message: ");
-    fgets(text, MSGBUFFER, stdin);
+int sendmessage(char* ipstr, char* mylisteningport, int id, char* text){
     char *buffercontainsmsg = strstr(text, "\n");
-    if(!buffercontainsmsg){
-        while ((getchar()) != '\n'); //flush stdin correctly
-        return 1;
-    }
+        if(!buffercontainsmsg){
+            while ((getchar()) != '\n'); //flush stdin correctly
+            return 1;
+        }
     char message[150] = "Message from ";
     printf("\nSending: %s\n", text);
     //pack message with sender info
@@ -44,7 +41,6 @@ int sendmessage(char* ipstr, char* mylisteningport, int id){
     if (send(id+3, message, 150, 0) == -1) {//send myip with message
         perror("send");
     }
-    free(text);
     return 2;
 }
 
@@ -268,10 +264,15 @@ int main(int argc, char *argv[])
             }
             else if (strncmp(command, "send", 4) == 0){
                 strtok(command, " ");
-                id = atoi(strtok(NULL, " "));
-                while(sendmessage(ipstr, mylisteningport, id) == 1){
+                id = atoi(strtok(NULL, " ")); //parse and set id to message recipient
+                char *text = (char*) malloc((MSGBUFFER)*sizeof(char));
+                printf("Enter message: ");
+                fgets(text, MSGBUFFER, stdin);
+
+                while(sendmessage(ipstr, mylisteningport, id, text) == 1){
                     printf("100 character limit for message\n");
                 }
+                free(text);
             }
             else{printf("Oops! Please enter a recognizable command. (Unless you're exiting, then bye-bye!)\n");}
         }
