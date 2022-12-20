@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <string.h>
+#include "CUnit-2.1-3/CUnit/Basic.h"
+
 //The max limit of the text field for messages
 A_Test void testMessageSize() {
 
