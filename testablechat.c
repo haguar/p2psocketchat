@@ -24,17 +24,13 @@ void *get_in_addr(struct sockaddr *sa)
 
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
-int sendmessage(char* ipstr, char* mylisteningport, int id){
-    char *text = (char*) malloc((MSGBUFFER)*sizeof(char));
-    printf("Enter message: ");
-    fgets(text, MSGBUFFER, stdin);
+int sendmessage(char* ipstr, char* mylisteningport, int id, char* text){
     char *buffercontainsmsg = strstr(text, "\n");
-    if(!buffercontainsmsg){
-        while ((getchar()) != '\n'); //flush stdin correctly
-        return 1;
-    }
+        if(!buffercontainsmsg){
+            while ((getchar()) != '\n'); //flush stdin correctly
+            return 1;
+        }
     char message[150] = "Message from ";
-    while ((getchar()) != '\n'); //flush stdin correctly
     printf("\nSending: %s\n", text);
     //pack message with sender info
     strncat(message, ipstr, 15);
@@ -42,11 +38,9 @@ int sendmessage(char* ipstr, char* mylisteningport, int id){
     strncat(message, mylisteningport, 4);
     strncat(message, ": ", 2);
     strncat(message, text, MSGBUFFER);
-    printf("%d\n", id);
-    if (send(id+3, message, 150, 0) == -1) {//send myip
+    if (send(id+3, message, 150, 0) == -1) {//send myip with message
         perror("send");
     }
-    free(text);
     return 2;
 }
 
@@ -189,7 +183,6 @@ int main(int argc, char *argv[])
             fgets(inbuf, 100, stdin);
             printf("processing==> %s\n", inbuf);
             strcpy(command, inbuf);
-            printf("%s", command);
 
 
             if (strncmp(command, "help", 4) == 0){ //if else tree for commands
@@ -270,14 +263,18 @@ int main(int argc, char *argv[])
                 close(id+3);
             }
             else if (strncmp(command, "send", 4) == 0){
-                char* trash;
-                trash = strtok(command, " ");
-                id = atoi(strtok(NULL, " "));
-                while(sendmessage(ipstr, mylisteningport, id) == 1){
+                strtok(command, " ");
+                id = atoi(strtok(NULL, " ")); //parse and set id to message recipient
+                char *text = (char*) malloc((MSGBUFFER)*sizeof(char));
+                printf("Enter message: ");
+                fgets(text, MSGBUFFER, stdin);
+
+                while(sendmessage(ipstr, mylisteningport, id, text) == 1){
                     printf("100 character limit for message\n");
                 }
+                free(text);
             }
-            else{printf("Oops! Please enter a recognizable command.\n");}
+            else{printf("Oops! Please enter a recognizable command. (Unless you're exiting, then bye-bye!)\n");}
         }
 
 
@@ -341,7 +338,7 @@ int main(int argc, char *argv[])
             } // END got new incoming connection
         } // END looping through file descriptors
     } // END while loop via exit command
-    printf("closing connections and terminating application\n");
+    printf("Closing connections and terminating application.\n");
     free(list); free(mylisteningport);
     return 0;
 }
