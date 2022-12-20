@@ -5,5 +5,5 @@
 //peers can receive message
 void testSendMessage() {
 
-    CU_ASSERT_EQUAL(sendmessage())
+    CU_ASSERT_EQUAL(sendmessage("192.168.1.122", "4444", 1, "hope this message finds you well"), 2)//message is sent via code 2 indicating execution reached past the error check for message NOT sent
 }
