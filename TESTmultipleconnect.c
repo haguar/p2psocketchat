@@ -2,7 +2,7 @@
 #include <string.h>
 #include "CUnit-2.1-3/CUnit/Basic.h"
 //peers can make multiple connections
-A_Test void testMultiConnect() {
+void testMultiConnect() {
 
-    assertEquals( )
+    CU_ASSERT_EQUAL( )
 }
